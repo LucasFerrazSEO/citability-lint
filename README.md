@@ -1,60 +1,86 @@
-# citability-lint — ferramenta grátis e de código aberto de checagem de citabilidade de texto
+**English** · [Português (Brasil)](README.pt-BR.md)
 
-`citability-lint` é uma ferramenta gratuita, de código aberto, que audita um
-texto e aponta o que atrapalha uma passagem de ser recortada e citada por
-buscadores com IA: parágrafo fora da banda de tamanho ideal, abertura com
-pronome vago, dado numérico sem fonte no mesmo parágrafo e clichês típicos
-de texto gerado por IA sem revisão. Roda inteiramente na sua máquina, via
-linha de comando — nenhum texto é enviado para servidor nenhum.
+# citability-lint
 
-## O que é citabilidade e por que auditar
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)
 
-Um Google AI Mode, um AI Overview, o Gemini, a Perplexity, o ChatGPT ou o
-Claude não leem a página inteira antes de responder: recortam um trecho e
-usam esse trecho como base da resposta ou da citação. Um parágrafo que
-depende do parágrafo anterior para fazer sentido, ou que solta um número
-sem dizer de onde veio, tem menos chance de virar essa citação — mesmo que
-o texto, lido do início ao fim, esteja correto. `citability-lint` audita
-exatamente essa característica, parágrafo por parágrafo.
+`citability-lint` is a free, open source command-line tool that audits a
+text and flags what keeps a passage from being extracted and cited by
+AI search engines: paragraphs outside the ideal length band, paragraphs
+that open with a vague pronoun, numeric data without a source in the same
+paragraph, and phrases typical of unedited AI-generated text. It runs
+entirely on your machine, and no text is sent to any server.
 
-## O que a ferramenta verifica
+The filler-phrase and vague-pronoun heuristics are specific to Brazilian
+Portuguese, and the tool prints its report in Brazilian Portuguese.
 
-1. **Tamanho do parágrafo** — banda padrão de 40 a 170 palavras (ajustável
-   por `--min-words`/`--max-words`). Parágrafo curto demais raramente
-   carrega uma ideia completa; parágrafo longo demais mistura ideias e
-   perde a passagem específica.
-2. **Abertura sem pronome vago** — "isso", "este", "ele" e afins abrindo um
-   parágrafo perdem o referente quando o parágrafo é recortado sozinho.
-3. **Dado numérico com fonte no mesmo parágrafo** — percentual, milhar ou
-   "X milhões" sem atribuição (fonte, estudo, ano) no mesmo parágrafo não é
-   uma passagem citável, é um número solto.
-4. **Muletas e clichês de IA** — lista embutida de expressões comuns em
-   texto gerado por IA sem revisão ("é importante notar", "no mundo digital
-   em constante evolução", "libere todo o potencial"...), extensível por
-   arquivo próprio.
+## Contents
 
-## Instalação
+- [Background](#background)
+- [What it checks](#what-it-checks)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [FAQ](#faq)
+- [Limitations](#limitations)
+- [Methodology](#methodology)
+- [Contributing](#contributing)
+- [Author](#author)
+- [License](#license)
 
-Só biblioteca padrão do Python (3.9 ou mais recente). Sem dependência
-externa nenhuma para instalar.
+## Background
+
+Google AI Mode, AI Overviews, Gemini, Perplexity, ChatGPT and Claude do
+not read a whole page before they answer. They extract a passage and use
+it as the basis of the answer or of the citation. A paragraph that needs
+the previous paragraph to make sense, or that drops a number without
+saying where it came from, is less likely to become that citation, even
+when the text is correct when read from start to finish. `citability-lint`
+audits exactly that, paragraph by paragraph.
+
+## What it checks
+
+1. **Paragraph length.** The default band is 40 to 170 words (adjustable
+   with `--min-words` and `--max-words`). A paragraph that is too short
+   rarely carries a complete idea. One that is too long mixes ideas and
+   loses the specific passage.
+2. **No vague pronoun at the start.** Portuguese words such as "isso",
+   "este" or "ele" opening a paragraph lose their referent when the
+   paragraph is extracted on its own.
+3. **Numeric data with a source in the same paragraph.** A percentage, a
+   thousands figure or "X milhões" without attribution (source, study,
+   year) in the same paragraph is not a citable passage, it is a loose
+   number.
+4. **Filler phrases and AI clichés.** A built-in list of expressions common
+   in unedited AI-generated Portuguese text ("é importante notar", "no
+   mundo digital em constante evolução", "libere todo o potencial"...),
+   which you can extend with your own file.
+
+## Requirements
+
+Python 3.9 or newer. Standard library only, no external dependencies.
+
+## Installation
 
 ```bash
-git clone https://github.com/lucasferrazseo/citability-lint.git
+git clone https://github.com/LucasFerrazSEO/citability-lint.git
 cd citability-lint
 ```
 
-## Como usar, passo a passo
+## Usage
 
-**1. Rode a ferramenta apontando para o arquivo que quer auditar.**
+**1. Run the tool on the file you want to audit.**
 
 ```bash
 python citability_lint.py meu-artigo.html
 ```
 
-Funciona com `.html`, `.md` ou `.txt`. Em HTML, a ferramenta lê o texto de
-dentro de cada `<p>`; em markdown e texto puro, divide por linha em branco.
+It works with `.html`, `.md` and `.txt`. In HTML, the tool reads the text
+inside each `<p>`. In Markdown and plain text, it splits paragraphs on
+blank lines.
 
-**2. Leia o relatório.** Um exemplo de saída real:
+**2. Read the report.** A real output example (the tool prints its report
+in Brazilian Portuguese):
 
 ```
 === citability-lint: meu-artigo.html ===
@@ -68,72 +94,83 @@ dentro de cada `<p>`; em markdown e texto puro, divide por linha em branco.
 (Checagem mecânica. Leitura humana e evidência real continuam manuais.)
 ```
 
-Cada linha de ATENÇÃO diz o parágrafo, o problema e, quando cabe, o trecho
-exato encontrado.
+Each ATENÇÃO (warning) line gives the paragraph, the problem and, where it
+applies, the exact phrase found.
 
-**3. Ajuste a banda de tamanho, se seu formato editorial for diferente.**
+**3. Adjust the length band** if your editorial format is different.
 
 ```bash
 python citability_lint.py post.md --min-words 40 --max-words 170
 ```
 
-**4. Adicione suas próprias muletas.** Crie um `.txt` com uma expressão por
-linha e aponte com `--termos-extra`:
+**4. Add your own filler phrases.** Create a `.txt` file with one phrase
+per line and pass it with `--termos-extra`.
 
 ```bash
 python citability_lint.py artigo.html --termos-extra minhas-muletas.txt
 ```
 
-**5. Também quer pegar contração coloquial em pt-BR** (num, numa, pra,
-pro...)?
+**5. Also catch colloquial Brazilian Portuguese contractions** (`num`,
+`numa`, `pra`, `pro`...).
 
 ```bash
 python citability_lint.py texto.txt --sem-contracoes
 ```
 
-**6. Use em CI/CD**, bloqueando publicação de texto fora do padrão:
+**6. Use it in CI/CD** to block publishing text that fails the checks.
 
 ```bash
 python citability_lint.py artigo.html --strict   # código de saída 1 se houver ATENÇÃO
 ```
 
-## Perguntas frequentes
+With `--strict`, the exit code is 1 when there is any warning. Without it,
+the tool only reports.
 
-**citability-lint é realmente grátis?**
-Sim, código aberto sob licença MIT, sem cadastro, sem limite de uso.
+## FAQ
 
-**Preciso de internet para usar?**
-Não. A ferramenta só lê o arquivo local que você passar; nenhum dado sai
-da sua máquina.
+**Is citability-lint really free?**
+Yes. It is open source under the MIT license, with no sign-up and no usage
+limit.
 
-**Funciona em português e em outro idioma?**
-As heurísticas de muleta e pronome vago são específicas de português
-brasileiro. Tamanho de parágrafo e checagem de dado-com-fonte funcionam em
-qualquer idioma.
+**Do I need an internet connection?**
+No. The tool only reads the local file you pass to it. No data leaves your
+machine.
 
-**A ferramenta garante que meu texto vai ser citado por uma IA?**
-Não, e nenhuma ferramenta garante isso. `citability-lint` reduz o atrito
-mecânico que atrapalha a citação; não controla o que cada IA decide citar.
+**Does it work in Portuguese and in other languages?**
+The filler-phrase and vague-pronoun heuristics are specific to Brazilian
+Portuguese. The paragraph-length check works in any language. The
+number-without-source check recognizes attribution only through Portuguese
+words (such as "segundo", "fonte", "estudo") and a fixed list of names
+(IBGE, Gartner, Semrush and others), so a sourced number in another
+language may still be flagged.
 
-## Limitações
+**Does the tool guarantee my text will be cited by an AI?**
+No, and no tool can guarantee that. `citability-lint` reduces the
+mechanical friction that gets in the way of citation. It does not control
+what each AI decides to cite.
 
-Cobre só português brasileiro nas heurísticas de muleta e pronome. Falso
-positivo existe: um parágrafo curto de definição direta ou uma citação
-entre aspas pode estar correto mesmo fora da banda de tamanho. Trate o
-resultado como sinal, não como veredito final.
+## Limitations
 
-## Método e origem
+The filler-phrase and pronoun heuristics cover Brazilian Portuguese only.
+False positives happen: a short, direct definition or a quotation may be
+fine even outside the length band. Treat the result as a signal, not a
+final verdict.
 
-As heurísticas vêm de um script de auditoria interno usado desde 2026 no
-processo editorial de [lucasferrazseo.com](https://lucasferrazseo.com),
-generalizado aqui para uso público, sem nenhuma regra específica de site ou
-CMS.
+## Methodology
 
-## Autor
+The heuristics come from an internal audit script used since 2026 in the
+editorial process of [lucasferrazseo.com](https://lucasferrazseo.com),
+generalized here for public use, with no site-specific or CMS-specific
+rules.
 
-[Lucas Ferraz](https://lucasferraz.com) — especialista em SEO, criação de
-sites e SEO para IA, fundador da [Lucas Ferraz SEO](https://lucasferrazseo.com).
+## Contributing
 
-## Licença
+Bug reports and suggestions are welcome through [GitHub Issues](https://github.com/LucasFerrazSEO/citability-lint/issues).
 
-MIT — ver [LICENSE](LICENSE).
+## Author
+
+[Lucas Ferraz](https://lucasferraz.com) is an SEO, website development and Generative Engine Optimization specialist and the founder of [Lucas Ferraz SEO](https://lucasferrazseo.com).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
